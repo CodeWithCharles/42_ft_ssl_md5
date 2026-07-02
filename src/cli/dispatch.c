@@ -6,7 +6,7 @@
 /*   By: cpoulain <cpoulain@student.42lehavre.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 18:10:04 by cpoulain          #+#    #+#             */
-/*   Updated: 2026/07/03 01:36:53 by cpoulain         ###   ########.fr       */
+/*   Updated: 2026/07/03 01:46:46 by cpoulain         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ const   t_command g_commands[] = {
     {"sha256", &g_sha256_algo, g_hash_flags},
     {"sha224", &g_sha224_algo, g_hash_flags},
     {"sha512", &g_sha512_algo, g_hash_flags},
+    {"sha384", &g_sha384_algo, g_hash_flags},
     {NULL, NULL, NULL},
 };
 

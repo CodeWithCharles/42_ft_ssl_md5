@@ -6,7 +6,7 @@
 /*   By: cpoulain <cpoulain@student.42lehavre.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/03 01:36:22 by cpoulain          #+#    #+#             */
-/*   Updated: 2026/07/03 01:36:25 by cpoulain         ###   ########.fr       */
+/*   Updated: 2026/07/03 01:46:13 by cpoulain         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,4 +133,38 @@ static void sha512_final(t_hash_ctx *ctx, uint8_t *digest)
 const t_hash_algo   g_sha512_algo = {
     "sha512", SHA512_BLOCK, SHA512_DIGEST, sha512_init, sha512_update,
     sha512_final
+};
+
+/* ------------------------------- SHA-384 ---------------------------------- */
+/* SHA-512 tronque : meme moteur, IV differents, digest sur 6 mots (384 bits). */
+
+static const uint64_t   g_sha384_iv[SHA512_WORDS] = {
+    0xcbbb9d5dc1059ed8, 0x629a292a367cd507,
+    0x9159015a3070dd17, 0x152fecd8f70e5939,
+    0x67332667ffc00b31, 0x8eb44a8768581511,
+    0xdb0c2e0d64f98fa7, 0x47b5481dbefa4fa4
+};
+
+static void sha384_init(t_hash_ctx *ctx)
+{
+    uint64_t    *h;
+    int         i;
+
+    h = (uint64_t *)ctx->state;
+    i = -1;
+    while (++i < SHA512_WORDS)
+        h[i] = g_sha384_iv[i];
+    ctx->buffer_len = 0;
+    ctx->total_len = 0;
+}
+
+static void sha384_final(t_hash_ctx *ctx, uint8_t *digest)
+{
+    md_finalize(ctx, SHA512_BLOCK, MD_LEN128, MD_BE, sha512_transform);
+    md_serialize64(ctx, digest, SHA384_WORDS, MD_BE);
+}
+
+const t_hash_algo   g_sha384_algo = {
+    "sha384", SHA512_BLOCK, SHA384_DIGEST, sha384_init, sha512_update,
+    sha384_final
 };
