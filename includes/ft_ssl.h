@@ -23,7 +23,7 @@ typedef struct  s_options
 /*                       Input sources (order preserved)                      */
 /* -------------------------------------------------------------------------- */
 
-typdef enum e_source_kind
+typedef enum e_source_kind
 {
     SRC_STDIN,      /* defaut, ou -p */
     SRC_STRING,     /* -s "..." */
@@ -52,7 +52,7 @@ typedef struct  s_flag_spec
 }   t_flag_spec;
 
 /* -------------------------------------------------------------------------- */
-/*        Commande (md5, sha256) : port eson algo ET sa table de flags        */
+/*        Commande (md5, sha256) : porte son algo ET sa table de flags        */
 /* -------------------------------------------------------------------------- */
 
 typedef struct  s_command
@@ -85,6 +85,11 @@ const t_command *find_command(const char *name);
 
 /* parse.c */
 int             parse_arguments(t_ssl *ssl, char **argv);
+
+/* sources (parse.c) */
+int             add_source(t_ssl *ssl, t_source_kind kind, const char *value);
+
+extern const    t_flag_spec g_hash_flags[];
 
 /* flags.c */
 int             flag_echo(t_ssl *ssl, const char *value);
