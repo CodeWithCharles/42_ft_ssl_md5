@@ -58,12 +58,23 @@ for n in 0 1 3 55 56 63 64 65 128 1000; do
 		"$(printf '%s' "$s" | $BIN sha224 -q)"
 done
 
+printf "${B}== SHA-512 vs sha512sum (bonus) ==${Z}\n"
+# Frontieres du bloc 128 o : 111 tient, 112 bascule sur un bloc de plus, 128 plein.
+for n in 0 1 3 110 111 112 127 128 129 1000; do
+	s=$(rep "$n")
+	eq "sha512 len=$n" \
+		"$(printf '%s' "$s" | sha512sum | cut -d' ' -f1)" \
+		"$(printf '%s' "$s" | $BIN sha512 -q)"
+done
+
 # Gros fichier binaire aleatoire
 head -c 5000000 /dev/urandom > .tmp_big
 eq "md5 gros fichier bin" \
 	"$(md5sum .tmp_big | cut -d' ' -f1)" "$($BIN md5 -q .tmp_big)"
 eq "sha256 gros fichier bin" \
 	"$(sha256sum .tmp_big | cut -d' ' -f1)" "$($BIN sha256 -q .tmp_big)"
+eq "sha512 gros fichier bin" \
+	"$(sha512sum .tmp_big | cut -d' ' -f1)" "$($BIN sha512 -q .tmp_big)"
 rm -f .tmp_big
 
 # --------------------------- Formats du sujet ------------------------------ #

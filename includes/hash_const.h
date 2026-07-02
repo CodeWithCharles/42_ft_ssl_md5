@@ -6,7 +6,7 @@
 /*   By: cpoulain <cpoulain@student.42lehavre.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 23:44:22 by cpoulain          #+#    #+#             */
-/*   Updated: 2026/07/03 01:17:41 by cpoulain         ###   ########.fr       */
+/*   Updated: 2026/07/03 01:32:25 by cpoulain         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,5 +37,19 @@
 
 # define	SHA224_DIGEST	28
 # define	SHA224_WORDS	7
+
+/* --------------------------------- SHA-512 -------------------------------- */
+/* Moteur 64 bits : mots de 64 bits, bloc 128 o, 80 rondes, longueur sur 128 bits. */
+
+# define	SHA512_BLOCK	128
+# define	SHA512_DIGEST	64
+# define	SHA512_WORDS	8
+# define	SHA512_ROUNDS	80
+
+/* --------------------------------- SHA-384 -------------------------------- */
+/* SHA-512 tronque : meme moteur, IV differents, digest sur 6 mots (384 bits). */
+
+# define	SHA384_DIGEST	48
+# define	SHA384_WORDS	6
 
 #endif

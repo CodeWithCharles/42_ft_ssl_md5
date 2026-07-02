@@ -65,7 +65,7 @@ void    md_finalize(t_hash_ctx *ctx, size_t block_size, size_t len_bytes, t_md_e
         transform(ctx, ctx->buffer);
         ctx->buffer_len = 0;
     }
-    while (ctx->buffer_len < pad_to)
+    while (ctx->buffer_len < block_size)
         ctx->buffer[ctx->buffer_len++] = 0x00;
     write_length(ctx, block_size, len_bytes, endian);
     transform(ctx, ctx->buffer);
@@ -89,6 +89,29 @@ void    md_serialize32(const t_hash_ctx *ctx, uint8_t *out, size_t nwords, t_md_
                 out[i * 4 + j] = (uint8_t)(h[i] >> (8 * j));
             else
                 out[i * 4 + j] = (uint8_t)(h[i] >> (8 * (3 - j)));
+        }
+    }
+}
+
+/* Serialise nwords mots de 64 bits de l'etat vers out (BE : sha512 / sha384). */
+void    md_serialize64(const t_hash_ctx *ctx, uint8_t *out, size_t nwords,
+            t_md_endian endian)
+{
+    const uint64_t  *h;
+    size_t          i;
+    size_t          j;
+
+    h = (const uint64_t *)ctx->state;
+    i = -1;
+    while (++i < nwords)
+    {
+        j = -1;
+        while (++j < 8)
+        {
+            if (endian == MD_LE)
+                out[i * 8 + j] = (uint8_t)(h[i] >> (8 * j));
+            else
+                out[i * 8 + j] = (uint8_t)(h[i] >> (8 * (7 - j)));
         }
     }
 }

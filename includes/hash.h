@@ -56,5 +56,7 @@ void    md_finalize(t_hash_ctx *ctx, size_t block_size, size_t len_bytes,
             t_md_endian endian, t_md_transform transform);
 void    md_serialize32(const t_hash_ctx *ctx, uint8_t *out, size_t nwords,
             t_md_endian endian);
+void    md_serialize64(const t_hash_ctx *ctx, uint8_t *out, size_t nwords,
+            t_md_endian endian);
 
 #endif
