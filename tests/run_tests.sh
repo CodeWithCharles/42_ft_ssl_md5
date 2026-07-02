@@ -67,6 +67,14 @@ for n in 0 1 3 110 111 112 127 128 129 1000; do
 		"$(printf '%s' "$s" | $BIN sha512 -q)"
 done
 
+printf "${B}== SHA-384 vs sha384sum (bonus) ==${Z}\n"
+for n in 0 1 3 111 112 128 1000; do
+	s=$(rep "$n")
+	eq "sha384 len=$n" \
+		"$(printf '%s' "$s" | sha384sum | cut -d' ' -f1)" \
+		"$(printf '%s' "$s" | $BIN sha384 -q)"
+done
+
 # Gros fichier binaire aleatoire
 head -c 5000000 /dev/urandom > .tmp_big
 eq "md5 gros fichier bin" \

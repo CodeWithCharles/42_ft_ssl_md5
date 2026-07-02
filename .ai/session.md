@@ -75,13 +75,35 @@ Code source = **markdown uniquement**, l'utilisateur implémente. Claude n'édit
 QUE `.ai/`, plus ce que l'utilisateur autorise **explicitement et ponctuellement**
 (ici : `docs/` et `tests/`). Une autorisation ≠ blanc-seing sur le reste.
 
-## Prochain pas — Phase 6 bonus (min. 5)
-Mandatory parfait ✅. Bonus faits : **SHA-224** (1/5).
-Reste (ordre proposé) :
-- **SHA-512 + SHA-384** : moteur 64 bits (bloc 128 o, `MD_LEN128` déjà réservé,
-  80 rondes, mots 64 bits). Nécessite un `md_serialize64`. 2 bonus d'un coup.
-- **Parsing commandes depuis STDIN** façon openssl interactif (couche CLI).
-- **Whirlpool** (requis pour le max ; structure type AES, gros morceau).
+## Bonus — Phase 6 (min. 5)
+Mandatory parfait ✅. Faits : **SHA-224, SHA-512, SHA-384** (3/5).
+- Moteur 64 bits (`src/hash/sha512.c`) : mots 64 bits, bloc 128 o, 80 rondes,
+  `MD_LEN128`. Seul ajout `md_core` = `md_serialize64`. SHA-384 = SHA-512 tronqué
+  6 mots (même fichier, réutilise transform/update).
+- **Bug md_core corrigé** (le mien) : `md_finalize` zéro-remplissait jusqu'à
+  `pad_to = block_size - len_bytes`, mais `write_length` n'écrit que 8 octets.
+  Pour `len_bytes=16` (SHA-512) → octets `[112..119]` du champ longueur laissés
+  en garbage. Fix : zéro-remplir jusqu'à `block_size`, `write_length` réécrit les
+  8 octets de poids faible. Invisible pour md5/sha256/sha224 (`len_bytes=8`).
+- Tests : `make test` = 62/62 (vs md5sum/sha*sum, frontières incl. 111/112 pour
+  SHA-512). Docs : `docs/sha512.md` (famille 64 bits + le bug de padding).
+
+## Reste pour le MAX — ordre validé avec l'utilisateur
+1. **Parsing commandes depuis STDIN** façon openssl interactif ← PROCHAIN PAS.
+   Quick win : bonus requis pour le max, léger, orthogonal au hashing (couche CLI
+   uniquement, ne touche aucun algo). À reprendre ici la prochaine session.
+2. **Whirlpool** (boss final ; requis pour le max). Structure type AES :
+   Miyaguchi–Preneel (pas la Merkle–Damgård classique), état/bloc 512 bits,
+   S-box 256 entrées, multiplications GF(2^8), 10 rondes sur matrice 8×8,
+   longueur sur 256 bits. **Ne colle PAS au `md_core` SHA** → prévoir son propre
+   chemin (ou re-généraliser `md_core`). Faire une phase de design (header
+   d'abord) avant toute ligne de code.
+
+## Rappel workflow (relire au démarrage)
+Code source = markdown, l'utilisateur implémente. Claude édite UNIQUEMENT `.ai/`
++ ce qui est explicitement autorisé (à ce stade : `docs/` et `tests/`).
+Build/test via `wsl -d debian -- bash -lc '...'`. Codes retour → script fichier
+(piège `$?`). `make test` = 62/62 au dernier point.
 
 ## Notes libft (CodeWithCharles/42_libft_full)
 - Archive : `libftfull.a` ; headers dans `libft/include/` (`libft.h`, `ft_printf.h` non inclus par libft.h).

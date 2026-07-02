@@ -12,6 +12,8 @@ de hachage du projet, MD5 et SHA-256, et comment elles sont implémentées ici.
 2. **[MD5](md5.md)** — digest 128 bits, little-endian, 64 rondes en 4 groupes.
 3. **[SHA-256](sha256.md)** — digest 256 bits, big-endian, message schedule et
    fonctions Σ/σ. Inclut aussi **SHA-224** (bonus), même moteur tronqué.
+4. **[SHA-512 & SHA-384](sha512.md)** (bonus) — le moteur **64 bits** : mots de
+   64 bits, bloc 128 o, 80 rondes. SHA-384 = SHA-512 tronqué.
 
 ## Vue d'ensemble : une fonction de hachage, c'est quoi ?
 
