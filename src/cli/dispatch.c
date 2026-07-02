@@ -6,7 +6,7 @@
 /*   By: cpoulain <cpoulain@student.42lehavre.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 18:10:04 by cpoulain          #+#    #+#             */
-/*   Updated: 2026/07/03 00:27:03 by cpoulain         ###   ########.fr       */
+/*   Updated: 2026/07/03 00:58:20 by cpoulain         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,4 +31,26 @@ const t_command *find_command(const char *name)
         ++i;
     }
     return (NULL);
+}
+
+void    print_invalid_command(const char *prog, const char *name)
+{
+    int i;
+
+    fd_printf(2, "%s: Error: '%s' is an invalid command.\n", prog, name);
+    ft_putendl_fd("Commands:", 2);
+    i = 0;
+    while (g_commands[i].name)
+        ft_putendl_fd((char *)g_commands[i].name, 2);
+    ft_putstr_fd("Flags:\n", 2);
+    i = 0;
+    while (g_hash_flags[i].name)
+    {
+        if (i > 0)
+            ft_putchar_fd(' ', 2);
+        ft_putchar_fd('-', 2);
+        ft_putchar_fd(g_hash_flags[i].name, 2);
+        i++;
+    }
+    ft_putchar_fd('\n', 2);
 }

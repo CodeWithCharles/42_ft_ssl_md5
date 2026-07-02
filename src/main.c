@@ -6,7 +6,7 @@
 /*   By: cpoulain <cpoulain@student.42lehavre.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 18:02:58 by cpoulain          #+#    #+#             */
-/*   Updated: 2026/07/02 23:43:55 by cpoulain         ###   ########.fr       */
+/*   Updated: 2026/07/03 00:59:11 by cpoulain         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,7 @@ int main(int argc, char **argv)
     
     ssl.command = find_command(argv[1]);
     if (!ssl.command)
-    {
-        ft_putstr_fd("ft_ssl: Error: '", 2);
-        ft_putstr_fd(argv[1], 2);
-        ft_putendl_fd("' is an invalid command.", 2);
-        return (1);
-    }
+        return (print_digest(ssl.prog, argv[1]), 1);
 	if (parse_arguments(&ssl, argv + 2))
 		return (ft_lstclear(&ssl.sources, free), 1);
 	status = run_sources(&ssl);

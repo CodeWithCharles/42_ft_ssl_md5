@@ -82,6 +82,7 @@ struct  s_ssl
 
 /* dispatch.c */
 const t_command *find_command(const char *name);
+void			print_invalid_command(const char *prog, const char *name);
 
 /* parse.c */
 int             parse_arguments(t_ssl *ssl, char **argv);
