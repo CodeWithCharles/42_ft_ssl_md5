@@ -12,7 +12,8 @@
       "Bash(wsl -d debian -- bash -lc 'cd ~/42_ft_ssl_md5 && make -s re 2>&1 | grep -iE \"error|warning\" ; bash /tmp/ft_ssl_test.sh')",
       "Bash(wsl -d debian -- bash -lc 'bash /tmp/ft_ssl_valgrind.sh')",
       "Bash(wsl -d debian -- bash -lc 'bash /tmp/ft_ssl_exit.sh')",
-      "Bash(wsl -d debian -- bash -lc 'cd ~/42_ft_ssl_md5 && chmod +x tests/run_tests.sh && make -s test')"
+      "Bash(wsl -d debian -- bash -lc 'cd ~/42_ft_ssl_md5 && chmod +x tests/run_tests.sh && make -s test')",
+      "Bash(wsl -d debian -- bash -lc 'cd ~/42_ft_ssl_md5 && make -s test 2>&1 | tail -4')"
     ]
   }
 }

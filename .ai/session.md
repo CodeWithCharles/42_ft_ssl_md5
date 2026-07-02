@@ -50,25 +50,38 @@ _Dernière mise à jour : 2026-07-02 (Phase 3 verrouillée)_
   → segfault. Coût réel = 1 fichier + 1 ligne dispatch + 1 extern. **Archi validée** :
   `exec.c`/`output.c`/parsing/Makefile intacts.
 - [x] **Doc** : `docs/` (README, merkle-damgard, md5, sha256) pour la correction.
+- [x] **Sortie commande invalide** conforme sujet p.5 (`print_invalid_command`
+  data-driven : liste `g_commands` + `g_hash_flags`). Usage → `[file/string]`.
+- [x] **Tests versionnés** : `tests/run_tests.sh` + règle `make test`.
+- [x] **Bonus #1 — SHA-224** : dans `sha256.c`, réutilise `sha256_transform`/
+  `sha256_update` ; propres = `sha224_init` (IV) + `sha224_final` (troncature à
+  `SHA224_WORDS=7` → 28 o). Constantes dans `hash_const.h`. Tests + docs à jour.
 
-## Tests Phase 4/5
-- Suite `/tmp/ft_ssl_test.sh` (non versionnée) : 16/16 — MD5 non-régression +
-  SHA-256 vs `sha256sum` (frontières 55/56/63/64/65, gros fichier binaire 5 Mo),
-  formats fichier/`-r`/`-q`, vecteur sujet p.8.
-- Valgrind clean (0 leak / 0 erreur) sur md5+sha256 + chemins d'erreur
-  (fichier absent, commande invalide, aucune commande).
+## Tests (versionnés — `make test`)
+- 44/44 : MD5/SHA-256/SHA-224 vs md5sum/sha256sum/sha224sum (frontières
+  55/56/63/64/65 + gros binaire 5 Mo), formats sujet p.7-8, 5 codes retour
+  (0 succès / 1 erreur, identiques à md5sum & openssl).
+- Valgrind clean (0 leak / 0 erreur) sur md5+sha256+sha224 + chemins d'erreur.
+- Codes retour : tester via **script fichier** (piège `$?` expansé par la couche
+  externe à travers `wsl bash -lc`, cf. mémoire).
 
 ## Env de dev
 Projet dans **WSL Debian**. Build/test/git via `wsl -d debian -- bash -lc '...'`.
 VS Code doit être ouvert en **Remote-WSL** (pas via `\\wsl.localhost\`), sinon
 pas d'IntelliSense ni de git.
 
-## Prochain pas — Phase 5 (durcissement) puis Phase 6 (bonus)
-Phase 5 quasi bouclée (diff-tests + valgrind OK). Restes éventuels :
-- Fichier **sans droit de lecture** (permission denied) → vérifier le message.
-- Décider si on **versionne le script de test** (ex. `tests/` + règle `make test`).
-Puis Phase 6 bonus (min. 5) : parsing STDIN façon openssl, SHA-224, SHA-512,
-SHA-384, Whirlpool. À n'attaquer qu'une fois le mandatory jugé parfait.
+## Workflow (IMPORTANT — cf. CLAUDE.md)
+Code source = **markdown uniquement**, l'utilisateur implémente. Claude n'édite
+QUE `.ai/`, plus ce que l'utilisateur autorise **explicitement et ponctuellement**
+(ici : `docs/` et `tests/`). Une autorisation ≠ blanc-seing sur le reste.
+
+## Prochain pas — Phase 6 bonus (min. 5)
+Mandatory parfait ✅. Bonus faits : **SHA-224** (1/5).
+Reste (ordre proposé) :
+- **SHA-512 + SHA-384** : moteur 64 bits (bloc 128 o, `MD_LEN128` déjà réservé,
+  80 rondes, mots 64 bits). Nécessite un `md_serialize64`. 2 bonus d'un coup.
+- **Parsing commandes depuis STDIN** façon openssl interactif (couche CLI).
+- **Whirlpool** (requis pour le max ; structure type AES, gros morceau).
 
 ## Notes libft (CodeWithCharles/42_libft_full)
 - Archive : `libftfull.a` ; headers dans `libft/include/` (`libft.h`, `ft_printf.h` non inclus par libft.h).

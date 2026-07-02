@@ -6,7 +6,7 @@
 /*   By: cpoulain <cpoulain@student.42lehavre.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/03 00:12:40 by cpoulain          #+#    #+#             */
-/*   Updated: 2026/07/03 00:32:06 by cpoulain         ###   ########.fr       */
+/*   Updated: 2026/07/03 01:18:03 by cpoulain         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,4 +124,37 @@ static void sha256_final(t_hash_ctx *ctx, uint8_t *digest)
 
 const t_hash_algo   g_sha256_algo = {
     "sha256", SHA256_BLOCK, SHA256_DIGEST, sha256_init, sha256_update, sha256_final
+};
+
+/* ------------------------------- SHA-224 ---------------------------------- */
+/* Meme moteur que SHA-256 (transform / schedule / update). Seuls changent
+   l'IV et la troncature du digest a 7 mots (224 bits). */
+
+static const uint32_t   g_sha224_iv[SHA256_WORDS] = {
+    0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939,
+    0xffc00b31, 0x68581511, 0x64f98fa7, 0xbefa4fa4
+};
+
+static void sha224_init(t_hash_ctx *ctx)
+{
+    uint32_t    *h;
+    int         i;
+
+    h = (uint32_t *)ctx->state;
+    i = -1;
+    while (++i < SHA256_WORDS)
+        h[i] = g_sha224_iv[i];
+    ctx->buffer_len = 0;
+    ctx->total_len = 0;
+}
+
+static void sha224_final(t_hash_ctx *ctx, uint8_t *digest)
+{
+    md_finalize(ctx, SHA256_BLOCK, MD_LEN64, MD_BE, sha256_transform);
+    md_serialize32(ctx, digest, SHA224_WORDS, MD_BE);
+}
+
+const t_hash_algo   g_sha224_algo = {
+    "sha224", SHA256_BLOCK, SHA224_DIGEST, sha224_init, sha256_update,
+    sha224_final
 };

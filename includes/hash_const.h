@@ -6,7 +6,7 @@
 /*   By: cpoulain <cpoulain@student.42lehavre.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 23:44:22 by cpoulain          #+#    #+#             */
-/*   Updated: 2026/07/02 23:48:14 by cpoulain         ###   ########.fr       */
+/*   Updated: 2026/07/03 01:17:41 by cpoulain         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,5 +30,12 @@
 # define	SHA256_DIGEST	32
 # define	SHA256_WORDS	8
 # define	SHA256_ROUNDS	64
+
+/* --------------------------------- SHA-224 -------------------------------- */
+/* Meme moteur que SHA-256 : IV differents + digest tronque a 7 mots (224 bits).
+   Reutilise SHA256_BLOCK / SHA256_WORDS / SHA256_ROUNDS pour l'etat interne. */
+
+# define	SHA224_DIGEST	28
+# define	SHA224_WORDS	7
 
 #endif

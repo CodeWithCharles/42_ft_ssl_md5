@@ -50,6 +50,14 @@ for n in 0 1 3 55 56 63 64 65 128 1000; do
 		"$(printf '%s' "$s" | $BIN sha256 -q)"
 done
 
+printf "${B}== SHA-224 vs sha224sum (bonus) ==${Z}\n"
+for n in 0 1 3 55 56 63 64 65 128 1000; do
+	s=$(rep "$n")
+	eq "sha224 len=$n" \
+		"$(printf '%s' "$s" | sha224sum | cut -d' ' -f1)" \
+		"$(printf '%s' "$s" | $BIN sha224 -q)"
+done
+
 # Gros fichier binaire aleatoire
 head -c 5000000 /dev/urandom > .tmp_big
 eq "md5 gros fichier bin" \

@@ -11,7 +11,7 @@ de hachage du projet, MD5 et SHA-256, et comment elles sont implémentées ici.
    SHA-256 partagent 90 % de leur squelette.
 2. **[MD5](md5.md)** — digest 128 bits, little-endian, 64 rondes en 4 groupes.
 3. **[SHA-256](sha256.md)** — digest 256 bits, big-endian, message schedule et
-   fonctions Σ/σ.
+   fonctions Σ/σ. Inclut aussi **SHA-224** (bonus), même moteur tronqué.
 
 ## Vue d'ensemble : une fonction de hachage, c'est quoi ?
 
