@@ -1,6 +1,6 @@
 # ft_ssl — état de session
 
-_Dernière mise à jour : 2026-07-02_
+_Dernière mise à jour : 2026-07-02 (Phase 3 verrouillée)_
 
 ## Avancement roadmap
 
@@ -20,22 +20,34 @@ _Dernière mise à jour : 2026-07-02_
   - Streaming (`update` multi-appels) OK.
 - [x] **Exécuteur** (`src/exec/exec.c`)
   - `run_sources` → dispatch par kind (string / fichier / stdin), `read` par chunks 64 Ko.
-  - Sortie **brute** `hexdigest\n` (via `ft_printf("%02x")`) — formats du sujet PAS encore faits.
   - Erreurs façon OpenSSL via `fd_printf(2, ...)`, on continue les sources suivantes, exit 1.
+- [x] **Phase 3 — Formatage de sortie** (`src/exec/output.c` + refacto `exec.c`)
+  - `print_digest` (kind + options) : normal / `-r` / `-q`. Table de formats en 1 point.
+  - Asymétries du sujet respectées : `(stdin)= ` (pas d'espace avant `=`) vs
+    `MD5 (x) = ` (espace avant `=`). Tag = `ft_toupper` du nom de commande.
+  - Priorités combos confirmées vs sujet : `-q` écrase `-r` (hash seul) ;
+    `-p` ignore `-r` (toujours `("...")= H`) ; `-r -s` garde les guillemets.
+  - `-p` : echo **streaming** avec strip du `\n` final (struct `t_echo`,
+    hold-back 1 octet) → `("42 is nice")= H` sur 1 ligne, mais le hash porte
+    sur le flux complet (`\n` inclus). Jamais de buffering.
+  - `ft_printf`/`fd_printf` non bufferisés (write char par char) → l'ordre
+    `ft_printf` / `write(1,...)` de l'echo est garanti.
 
 ## Tests passés
-7/7 vecteurs vs md5sum (vide, abc, 55/56/64 octets, stdin, gros fichier), valgrind clean.
+- Phase 2 : 7/7 vecteurs vs md5sum (vide, abc, 55/56/64 octets, stdin, gros fichier).
+- Phase 3 : les 4 formats + tous les combos page 7 (`-p`, `-q -r`, `-r -p -s file -s`,
+  `-r -q -p -s file`, `MD5 (file)=`/reverse, `-s` apostrophe → `a3c990a1…`), au pixel.
+  Cas limites OK : stdin vide, `-p` sans newline final.
+- Valgrind clean (exit 0) sur combo multi-sources `-p -s foo file bar`.
 
-## Prochain pas — Phase 3 : formatage de sortie
-Implémenter les 4 formats page 7 du sujet + combos `-r -q -p`, au pixel :
-- défaut stdin : `(stdin)= <hash>`
-- `-p` : `("<contenu stdin>")= <hash>`
-- fichier : `MD5 (file) = <hash>`
-- `-r` fichier : `<hash> file`
-- `-s` : `MD5 ("string") = <hash>`
-- `-q` : hash seul (mais `-p -q` echo quand même le stdin en clair avant)
-
-Ça ne doit toucher QUE la couche sortie (`print_hex`/`run_sources`), pas le hashing.
+## Prochain pas — Phase 4 : SHA-256
+Test de vérité de l'archi : **1 fichier `src/hash/sha256.c` + 1 ligne dans la
+table d'algos** (`g_sha256_algo`), et brancher la commande `sha256` dans le
+dispatch. Si on doit toucher `exec.c`/`output.c`/parsing → l'archi est ratée.
+- Merkle–Damgård **big-endian** (longueur 64 bits BE, lecture des mots BE).
+- 8 mots d'état, message schedule `W[64]`, fonctions Σ/σ, 64 constantes K.
+- Digest 32 octets. `digest_size` porté par la struct → `output.c` s'adapte seul.
+- Vérif : `./ft_ssl sha256 -s "42 is nice"` → `b7e44c7a…13b758f` (sujet p.8).
 
 ## Notes libft (CodeWithCharles/42_libft_full)
 - Archive : `libftfull.a` ; headers dans `libft/include/` (`libft.h`, `ft_printf.h` non inclus par libft.h).

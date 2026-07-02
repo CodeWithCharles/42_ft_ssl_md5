@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($p = \\(Get-Command pdftotext -ErrorAction SilentlyContinue\\); if \\($p\\) { \"pdftotext: $\\($p.Source\\)\" } else { \"no-pdftotext\" }; $py = \\(Get-Command python -ErrorAction SilentlyContinue\\); if \\($py\\) { \"python: $\\($py.Source\\)\" } else { \"no-python\" })",
+      "PowerShell($out = \"$env:TEMP\\\\ft_ssl_subject.txt\"; pdftotext -layout \"C:\\\\Users\\\\segac\\\\Downloads\\\\ft_ssl_md5.pdf\" $out; \"written: $out\"; \\(Get-Item $out\\).Length)",
+      "Bash(wsl -d debian -- bash -lc 'cd ~/42_ft_ssl_md5 && make -s 2>&1 | tail -5; echo \"=== build done ===\"')",
+      "Bash(wsl -d debian -- bash -lc ' *)"
+    ]
+  }
+}
