@@ -41,7 +41,7 @@ void    print_invalid_command(const char *prog, const char *name)
     ft_putendl_fd("Commands:", 2);
     i = 0;
     while (g_commands[i].name)
-        ft_putendl_fd((char *)g_commands[i].name, 2);
+        ft_putendl_fd((char *)g_commands[i++].name, 2);
     ft_putstr_fd("Flags:\n", 2);
     i = 0;
     while (g_hash_flags[i].name)
