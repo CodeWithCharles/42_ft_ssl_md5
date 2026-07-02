@@ -19,8 +19,8 @@ INCLUDES	:=	-Iincludes -I$(LIBFT_DIR)/include
 SRC_DIR		:=	src
 OBJ_DIR		:=	build
 
-SRC			:= $(shell find $(SRC_DIR) -name '*.c')
-OBJ			:= $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRC))
+SRC			:=	$(shell find $(SRC_DIR) -name '*.c')
+OBJ			:=	$(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRC))
 
 # ---------------------------------- Regles ---------------------------------- #
 
