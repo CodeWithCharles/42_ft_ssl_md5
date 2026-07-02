@@ -6,7 +6,7 @@
 /*   By: cpoulain <cpoulain@student.42lehavre.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 18:10:04 by cpoulain          #+#    #+#             */
-/*   Updated: 2026/07/02 18:26:46 by cpoulain         ###   ########.fr       */
+/*   Updated: 2026/07/02 18:58:38 by cpoulain         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 /* TODO: Branche en Phase 2 avec md5 / Phase 4 pour sha256 */
 const   t_command g_commands[] = {
-    {"md5", NULL, g_hash_flags},
+    {"md5", &g_md5_algo, g_hash_flags},
     {NULL, NULL, NULL},
 };
 

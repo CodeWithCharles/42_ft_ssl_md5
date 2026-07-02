@@ -90,11 +90,15 @@ int             parse_arguments(t_ssl *ssl, char **argv);
 int             add_source(t_ssl *ssl, t_source_kind kind, const char *value);
 
 extern const    t_flag_spec g_hash_flags[];
+extern const    t_hash_algo g_md5_algo;
 
 /* flags.c */
 int             flag_echo(t_ssl *ssl, const char *value);
 int             flag_quiet(t_ssl *ssl, const char *value);
 int             flag_reverse(t_ssl *ssl, const char *value);
 int             flag_string(t_ssl *ssl, const char *value);
+
+/* exec.c */
+int				run_sources(t_ssl *ssl);
 
 #endif

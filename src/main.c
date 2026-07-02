@@ -6,34 +6,16 @@
 /*   By: cpoulain <cpoulain@student.42lehavre.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 18:02:58 by cpoulain          #+#    #+#             */
-/*   Updated: 2026/07/02 18:26:44 by cpoulain         ###   ########.fr       */
+/*   Updated: 2026/07/02 19:10:03 by cpoulain         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include    "ft_ssl.h"
 
-/* TODO: Remplacer par l'executeur reel */
-static void print_recap(t_ssl *ssl)
-{
-    t_list      *n;
-    t_source    *s;
-    const char  *kinds[] = {"STDIN", "STRING", "FILE"};
-
-    ft_printf("command: %s | p=%d q=%d r=%d\n", ssl->command->name,
-    ssl->options.echo_stdin, ssl->options.quiet, ssl->options.reverse);
-    n = ssl->sources;
-
-    while (n)
-    {
-        s = (t_source *)n->content;
-        ft_printf(" [%s] %s\n", kinds[s->kind], s->value ? s->value : "(stdin)");
-        n = n->next;
-    }
-}
-
 int main(int argc, char **argv)
 {
     t_ssl   ssl;
+    int     status;
     
     ft_bzero(&ssl, sizeof(t_ssl));
     ssl.prog = "ft_ssl";
@@ -48,9 +30,9 @@ int main(int argc, char **argv)
         ft_putendl_fd("' is an invalid command.", 2);
         return (1);
     }
-    if (parse_arguments(&ssl, argv + 2))
-        return (ft_lstclear(&ssl.sources, free), 1);
-    print_recap(&ssl);
-    ft_lstclear(&ssl.sources, free);
-    return (0);
+	if (parse_arguments(&ssl, argv + 2))
+		return (ft_lstclear(&ssl.sources, free), 1);
+	status = run_sources(&ssl);
+	ft_lstclear(&ssl.sources, free);
+	return (status);
 }
