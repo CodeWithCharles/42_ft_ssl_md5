@@ -4,7 +4,15 @@
       "PowerShell($p = \\(Get-Command pdftotext -ErrorAction SilentlyContinue\\); if \\($p\\) { \"pdftotext: $\\($p.Source\\)\" } else { \"no-pdftotext\" }; $py = \\(Get-Command python -ErrorAction SilentlyContinue\\); if \\($py\\) { \"python: $\\($py.Source\\)\" } else { \"no-python\" })",
       "PowerShell($out = \"$env:TEMP\\\\ft_ssl_subject.txt\"; pdftotext -layout \"C:\\\\Users\\\\segac\\\\Downloads\\\\ft_ssl_md5.pdf\" $out; \"written: $out\"; \\(Get-Item $out\\).Length)",
       "Bash(wsl -d debian -- bash -lc 'cd ~/42_ft_ssl_md5 && make -s 2>&1 | tail -5; echo \"=== build done ===\"')",
-      "Bash(wsl -d debian -- bash -lc ' *)"
+      "Bash(wsl -d debian -- bash -lc ' *)",
+      "Bash(wsl -d debian -- bash -lc 'cd ~/42_ft_ssl_md5 && make re 2>&1 | grep -iE \"error|undefined|reference|warning|md_serialize|=== |ld:\" | head -30; echo \"--- exit: ${PIPESTATUS[0]} ---\"')",
+      "Bash(wsl -d debian -- bash -lc 'cd ~/42_ft_ssl_md5 && make re 2>&1 | grep -iE \"error|undefined|warning|Stop|ld:\" ; echo \"--- build exit: ${PIPESTATUS[0]} ---\"; ls -l ft_ssl 2>&1 | tail -1')",
+      "Bash(wsl -d debian -- bash /tmp/ft_ssl_test.sh)",
+      "Bash(wsl -d debian -- bash -lc 'bash /tmp/ft_ssl_test.sh')",
+      "Bash(wsl -d debian -- bash -lc 'cd ~/42_ft_ssl_md5 && make -s re 2>&1 | grep -iE \"error|warning\" ; bash /tmp/ft_ssl_test.sh')",
+      "Bash(wsl -d debian -- bash -lc 'bash /tmp/ft_ssl_valgrind.sh')",
+      "Bash(wsl -d debian -- bash -lc 'bash /tmp/ft_ssl_exit.sh')",
+      "Bash(wsl -d debian -- bash -lc 'cd ~/42_ft_ssl_md5 && chmod +x tests/run_tests.sh && make -s test')"
     ]
   }
 }

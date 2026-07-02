@@ -40,14 +40,35 @@ _Dernière mise à jour : 2026-07-02 (Phase 3 verrouillée)_
   Cas limites OK : stdin vide, `-p` sans newline final.
 - Valgrind clean (exit 0) sur combo multi-sources `-p -s foo file bar`.
 
-## Prochain pas — Phase 4 : SHA-256
-Test de vérité de l'archi : **1 fichier `src/hash/sha256.c` + 1 ligne dans la
-table d'algos** (`g_sha256_algo`), et brancher la commande `sha256` dans le
-dispatch. Si on doit toucher `exec.c`/`output.c`/parsing → l'archi est ratée.
-- Merkle–Damgård **big-endian** (longueur 64 bits BE, lecture des mots BE).
-- 8 mots d'état, message schedule `W[64]`, fonctions Σ/σ, 64 constantes K.
-- Digest 32 octets. `digest_size` porté par la struct → `output.c` s'adapte seul.
-- Vérif : `./ft_ssl sha256 -s "42 is nice"` → `b7e44c7a…13b758f` (sujet p.8).
+- [x] **Refactor md_core** : cœur Merkle–Damgård partagé (`src/hash/md_core.c` :
+  `md_absorb` / `md_finalize` / `md_serialize32`). MD5 refactoré dessus.
+  Magic numbers sortis dans `includes/hash_const.h` (`*_BLOCK/DIGEST/WORDS/ROUNDS`,
+  `MD_LEN64`). IV en tableaux nommés (`g_md5_iv`, `g_sha256_iv`).
+- [x] **Phase 4 — SHA-256** (`src/hash/sha256.c`) : big-endian, 8 mots, message
+  schedule W[64], Σ/σ, 64 K. Bug corrigé : `sha256_init` bornait la boucle sur
+  `SHA256_BLOCK` (64) au lieu de `SHA256_WORDS` (8) → overflow de `ctx->state`
+  → segfault. Coût réel = 1 fichier + 1 ligne dispatch + 1 extern. **Archi validée** :
+  `exec.c`/`output.c`/parsing/Makefile intacts.
+- [x] **Doc** : `docs/` (README, merkle-damgard, md5, sha256) pour la correction.
+
+## Tests Phase 4/5
+- Suite `/tmp/ft_ssl_test.sh` (non versionnée) : 16/16 — MD5 non-régression +
+  SHA-256 vs `sha256sum` (frontières 55/56/63/64/65, gros fichier binaire 5 Mo),
+  formats fichier/`-r`/`-q`, vecteur sujet p.8.
+- Valgrind clean (0 leak / 0 erreur) sur md5+sha256 + chemins d'erreur
+  (fichier absent, commande invalide, aucune commande).
+
+## Env de dev
+Projet dans **WSL Debian**. Build/test/git via `wsl -d debian -- bash -lc '...'`.
+VS Code doit être ouvert en **Remote-WSL** (pas via `\\wsl.localhost\`), sinon
+pas d'IntelliSense ni de git.
+
+## Prochain pas — Phase 5 (durcissement) puis Phase 6 (bonus)
+Phase 5 quasi bouclée (diff-tests + valgrind OK). Restes éventuels :
+- Fichier **sans droit de lecture** (permission denied) → vérifier le message.
+- Décider si on **versionne le script de test** (ex. `tests/` + règle `make test`).
+Puis Phase 6 bonus (min. 5) : parsing STDIN façon openssl, SHA-224, SHA-512,
+SHA-384, Whirlpool. À n'attaquer qu'une fois le mandatory jugé parfait.
 
 ## Notes libft (CodeWithCharles/42_libft_full)
 - Archive : `libftfull.a` ; headers dans `libft/include/` (`libft.h`, `ft_printf.h` non inclus par libft.h).

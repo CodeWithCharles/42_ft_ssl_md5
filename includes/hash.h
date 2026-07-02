@@ -38,4 +38,23 @@ typedef struct s_hash_algo
     void        (*final)(t_hash_ctx *ctx, uint8_t *digest);
 } t_hash_algo;
 
+/* -------------------------- Coeur Merkle-Damgard -------------------------- */
+
+typedef enum    e_md_endian
+{
+    MD_LE,
+    MD_BE
+}   t_md_endian;
+
+/* Compression d'un bloc : lit/écrit ctx->state (mots natifs). */
+typedef void    (*t_md_transform)(t_hash_ctx *ctx, const uint8_t *block);
+
+/* md_core.c */
+void    md_absorb(t_hash_ctx *ctx, const uint8_t *data, size_t len,
+            size_t block_size, t_md_transform transform);
+void    md_finalize(t_hash_ctx *ctx, size_t block_size, size_t len_bytes,
+            t_md_endian endian, t_md_transform transform);
+void    md_serialize32(const t_hash_ctx *ctx, uint8_t *out, size_t nwords,
+            t_md_endian endian);
+
 #endif

@@ -6,11 +6,16 @@
 /*   By: cpoulain <cpoulain@student.42lehavre.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 18:43:35 by cpoulain          #+#    #+#             */
-/*   Updated: 2026/07/02 19:03:26 by cpoulain         ###   ########.fr       */
+/*   Updated: 2026/07/02 23:50:49 by cpoulain         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "hash.h"
+#include "hash_const.h"
+
+static const uint32_t	g_md5_iv[MD5_WORDS] = {
+	0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476
+};
 
 /* 64 constantes K = floor(2^32 * |sin(i+1)|). */
 static const uint32_t	g_md5_k[64] = {
@@ -53,48 +58,50 @@ static uint32_t read_le32(const uint8_t *p)
 }
 
 /* Compression d'un bloc de 64 octets dans l'etat h[0..3]. */
-static void md5_transform(uint32_t *h, const uint8_t *block)
+static void md5_transform(t_hash_ctx *ctx, const uint8_t *block)
 {
-    uint32_t    m[16];
-    uint32_t    a, b, c, d;
-    uint32_t    f, g;
-    int         i;
+	uint32_t	*h;
+	uint32_t	m[16];
+	uint32_t	a, b, c, d;
+	uint32_t	f, g;
+	int			i;
 
-    i = -1;
-    while (++i < 16)
-        m[i] = read_le32(block + i * 4);
-    a = h[0];
-    b = h[1];
-    c = h[2];
-    d = h[3];
-    i = -1;
-    while (++i < 64)
-    {
-        if (i < 16)
-        {
-            f = (b & c) | (~b & d);
-            g = i;
-        }
-        else if (i < 32)
-        {
-            f = (d & b) | (~d & c);
-            g = (5 * i + 1) & 15;
-        }
-        else if (i < 48)
-        {
-            f = b ^ c ^ d;
-            g = (3 * i + 5) & 15;
-        }
-        else
-        {
-            f = c ^ (b | ~d);
-            g = (7 * i) & 15;
-        }
-        f = f + a + g_md5_k[i] + m[g];
-        a = d;
-        d = c;
-        c = b;
-        b = b + rotl(f , g_md5_s[i]);
+	h = (uint32_t *)ctx->state;
+	i = -1;
+	while (++i < 16)
+		m[i] = read_le32(block + i * 4);
+	a = h[0];
+	b = h[1];
+	c = h[2];
+	d = h[3];
+	i = -1;
+	while (++i < MD5_ROUNDS)
+	{
+		if (i < 16)
+		{
+			f = (b & c) | (~b & d);
+			g = i;
+		}
+		else if (i < 32)
+		{
+			f = (d & b) | (~d & c);
+			g = (5 * i + 1) & 15;
+		}
+		else if (i < 48)
+		{
+			f = b ^ c ^ d;
+			g = (3 * i + 5) & 15;
+		}
+		else
+		{
+			f = c ^ (b | ~d);
+			g = (7 * i) & 15;
+		}
+		f = f + a + g_md5_k[i] + m[g];
+		a = d;
+		d = c;
+		c = b;
+		b = b + rotl(f, g_md5_s[i]);
 	}
 	h[0] += a;
 	h[1] += b;
@@ -106,68 +113,28 @@ static void md5_transform(uint32_t *h, const uint8_t *block)
 
 static void md5_init(t_hash_ctx *ctx)
 {
-    uint32_t    *h;
+	uint32_t	*h;
+	int			i;
 
-    h = (uint32_t *)ctx->state;
-	h[0] = 0x67452301;
-	h[1] = 0xefcdab89;
-	h[2] = 0x98badcfe;
-	h[3] = 0x10325476;
+	h = (uint32_t *)ctx->state;
+	i = -1;
+	while (++i < MD5_WORDS)
+		h[i] = g_md5_iv[i];
 	ctx->buffer_len = 0;
 	ctx->total_len = 0;
 }
 
 static void md5_update(t_hash_ctx *ctx, const uint8_t *data, size_t len)
 {
-    uint32_t    *h;
-    size_t      i;
-
-    h = (uint32_t *)ctx->state;
-    ctx->total_len += len;
-    i = 0;
-    while (i < len)
-    {
-        ctx->buffer[ctx->buffer_len++] = data[i++];
-        if (ctx->buffer_len == 64)
-        {
-            md5_transform(h, ctx->buffer);
-            ctx->buffer_len = 0;
-        }
-    }
+    md_absorb(ctx, data, len, MD5_BLOCK, md5_transform);
 }
 
 static void md5_final(t_hash_ctx *ctx, uint8_t *digest)
 {
-    uint32_t    *h;
-    uint64_t    bits;
-    size_t      i;
-
-    h = (uint32_t *)ctx->state;
-    bits = (uint64_t)ctx->total_len * 8;
-    ctx->buffer[ctx->buffer_len++] = 0x80;
-    if (ctx->buffer_len > 56)
-    {
-        while (ctx->buffer_len < 64)
-            ctx->buffer[ctx->buffer_len++] = 0x00;
-        md5_transform(h, ctx->buffer);
-        ctx->buffer_len = 0;
-    }
-    while (ctx->buffer_len < 56)
-        ctx->buffer[ctx->buffer_len++] = 0x00;
-    i = -1;
-    while (++i < 8)
-        ctx->buffer[56 + i] = (uint8_t)(bits >> (8 * i));
-    md5_transform(h, ctx->buffer);
-    i = -1;
-    while (++i < 4)
-    {
-        digest[i * 4 + 0] = (uint8_t)(h[i]);
-        digest[i * 4 + 1] = (uint8_t)(h[i] >> 8);
-        digest[i * 4 + 2] = (uint8_t)(h[i] >> 16);
-        digest[i * 4 + 3] = (uint8_t)(h[i] >> 24);
-    }
+    md_finalize(ctx, MD5_BLOCK, MD_LEN64, MD_LE, md5_transform);
+    md_serialize32(ctx, digest, MD5_WORDS, MD_LE);
 }
 
 const t_hash_algo   g_md5_algo = {
-    "md5", 64, 16, md5_init, md5_update, md5_final
+    "md5", MD5_BLOCK, MD5_DIGEST, md5_init, md5_update, md5_final
 };
