@@ -106,6 +106,9 @@ int             flag_string(t_ssl *ssl, const char *value);
 /* exec.c */
 int             run_sources(t_ssl *ssl);
 
+/* interactive.c */
+int				interactive_mode(t_ssl *ssl);
+
 /* output.c */
 void            print_digest(t_ssl *ssl, t_source *src, const uint8_t *digest);
 void            print_p_open(t_ssl *ssl);
