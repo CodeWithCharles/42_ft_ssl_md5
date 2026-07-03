@@ -96,6 +96,7 @@ extern const	t_hash_algo g_sha256_algo;
 extern const	t_hash_algo g_sha224_algo;
 extern const	t_hash_algo g_sha512_algo;
 extern const	t_hash_algo g_sha384_algo;
+extern const	t_hash_algo g_whirlpool_algo;
 
 /* flags.c */
 int             flag_echo(t_ssl *ssl, const char *value);

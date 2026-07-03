@@ -13,7 +13,11 @@
       "Bash(wsl -d debian -- bash -lc 'bash /tmp/ft_ssl_valgrind.sh')",
       "Bash(wsl -d debian -- bash -lc 'bash /tmp/ft_ssl_exit.sh')",
       "Bash(wsl -d debian -- bash -lc 'cd ~/42_ft_ssl_md5 && chmod +x tests/run_tests.sh && make -s test')",
-      "Bash(wsl -d debian -- bash -lc 'cd ~/42_ft_ssl_md5 && make -s test 2>&1 | tail -4')"
+      "Bash(wsl -d debian -- bash -lc 'cd ~/42_ft_ssl_md5 && make -s test 2>&1 | tail -4')",
+      "WebSearch",
+      "WebFetch(domain:www2.seas.gwu.edu)",
+      "Bash(pdftotext -layout /home/rhamiel/.claude/projects/-home-rhamiel-42-ft-ssl-md5/0dd85afb-58ac-4e34-b95a-3ceb8b1b7d17/tool-results/webfetch-1783080496454-mjncrj.pdf /tmp/wp.txt)",
+      "Read(//tmp/**)"
     ]
   }
 }

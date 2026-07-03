@@ -75,6 +75,28 @@ for n in 0 1 3 111 112 128 1000; do
 		"$(printf '%s' "$s" | $BIN sha384 -q)"
 done
 
+printf "${B}== Whirlpool (bonus, vecteurs officiels NESSIE) ==${Z}\n"
+# Pas de whirlpoolsum dans coreutils : on compare aux vecteurs de reference.
+eq "whirlpool empty" \
+	"19fa61d75522a4669b44e39c1d2e1726c530232130d407f89afee0964997f7a73e83be698b288febcf88e3e03c4f0757ea8964e59b63d93708b138cc42a66eb3" \
+	"$(printf '' | $BIN whirlpool -q)"
+eq "whirlpool abc" \
+	"4e2448a4c6f486bb16b6562c73b4020bf3043e3a731bce721ae1b303d97e6d4c7181eebdb6c57e277d0e34957114cbd6c797fc9d95d8b582d225292076d4eef5" \
+	"$(printf 'abc' | $BIN whirlpool -q)"
+eq "whirlpool message digest" \
+	"378c84a4126e2dc6e56dcc7458377aac838d00032230f53ce1f5700c0ffb4d3b8421557659ef55c106b4b52ac5a4aaa692ed920052838f3362e86dbd37a8903e" \
+	"$(printf 'message digest' | $BIN whirlpool -q)"
+# Self-consistency -s / file / stdin sur les frontieres de padding (bloc 64 o,
+# champ longueur 32 o : bascule autour de 31/32).
+for n in 31 32 63 64 65 1000; do
+	s=$(rep "$n")
+	printf '%s' "$s" > .tmp_wp
+	ref="$(printf '%s' "$s" | $BIN whirlpool -q)"
+	eq "whirlpool len=$n : file==stdin" "$ref" "$($BIN whirlpool -q .tmp_wp)"
+	eq "whirlpool len=$n : -s==stdin"   "$ref" "$($BIN whirlpool -q -s "$s")"
+done
+rm -f .tmp_wp
+
 # Gros fichier binaire aleatoire
 head -c 5000000 /dev/urandom > .tmp_big
 eq "md5 gros fichier bin" \

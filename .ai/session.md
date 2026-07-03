@@ -1,6 +1,6 @@
 # ft_ssl — état de session
 
-_Dernière mise à jour : 2026-07-03 (Bonus #1 — mode interactif STDIN verrouillé)_
+_Dernière mise à jour : 2026-07-03 (Whirlpool verrouillé — bonus 5/5, MAX atteint)_
 
 ## Avancement roadmap
 
@@ -76,7 +76,7 @@ QUE `.ai/`, plus ce que l'utilisateur autorise **explicitement et ponctuellement
 (ici : `docs/` et `tests/`). Une autorisation ≠ blanc-seing sur le reste.
 
 ## Bonus — Phase 6 (min. 5)
-Mandatory parfait ✅. Faits : **SHA-224, SHA-512, SHA-384, parsing STDIN interactif** (4/5).
+Mandatory parfait ✅. Faits : **SHA-224, SHA-512, SHA-384, parsing STDIN interactif, Whirlpool** (5/5 — MAX).
 - **Bonus #1 — Parsing commandes depuis STDIN (openssl-like)** (`src/cli/interactive.c`) :
   `argc < 2` → `interactive_mode` (au lieu de usage+exit 1). Boucle GNL(0) → tokenizer
   **quote-aware** (`'...'`/`"..."`, collage `-s"a b"`, deux passes count+fill, pas de
@@ -93,23 +93,29 @@ Mandatory parfait ✅. Faits : **SHA-224, SHA-512, SHA-384, parsing STDIN intera
   Pour `len_bytes=16` (SHA-512) → octets `[112..119]` du champ longueur laissés
   en garbage. Fix : zéro-remplir jusqu'à `block_size`, `write_length` réécrit les
   8 octets de poids faible. Invisible pour md5/sha256/sha224 (`len_bytes=8`).
-- Tests : `make test` = 67/67 (vs md5sum/sha*sum, frontières incl. 111/112 pour
+- Tests : `make test` = 82/82 (vs md5sum/sha*sum, frontières incl. 111/112 pour
   SHA-512). Docs : `docs/sha512.md` (famille 64 bits + le bug de padding).
 
-## Reste pour le MAX — ordre validé avec l'utilisateur
+## MAX atteint — tous les bonus faits ✅
 1. ~~Parsing commandes depuis STDIN façon openssl~~ ✅ FAIT (bonus #1 ci-dessus).
-2. **Whirlpool** (boss final ; requis pour le max) ← PROCHAIN PAS. Structure type AES :
-   Miyaguchi–Preneel (pas la Merkle–Damgård classique), état/bloc 512 bits,
-   S-box 256 entrées, multiplications GF(2^8), 10 rondes sur matrice 8×8,
-   longueur sur 256 bits. **Ne colle PAS au `md_core` SHA** → prévoir son propre
-   chemin (ou re-généraliser `md_core`). Faire une phase de design (header
-   d'abord) avant toute ligne de code.
+2. ~~Whirlpool~~ ✅ FAIT (`src/hash/whirlpool.c`). **Résultat clé : `md_core`
+   accueille Whirlpool SANS modif** — la compression est un callback
+   `t_md_transform(ctx, block)` (peut faire Miyaguchi–Preneel au lieu de
+   Davies–Meyer), et `md_finalize(len_bytes=32, MD_BE)` produit le padding 256
+   bits. Whirlpool = 1 fichier + 1 ligne dispatch + 1 extern → **l'archi a tenu
+   jusqu'au boss**. Détails : Miyaguchi–Preneel `H = W_H(m) ^ m ^ H`, chiffre "W"
+   type AES (matrice 8×8, SB/SC/MR/AK, 10 rondes, key schedule en lockstep,
+   GF(2^8) mod 0x11D), IV=0, digest=état brut (`ft_memcpy`, pas de md_serialize).
+   S-box **générée** depuis les mini-boxes E/E⁻¹/R (pas hardcodée) — validée
+   `S[0]=0x18`. Vecteurs officiels NESSIE OK (empty/abc/message digest).
+   Constantes fetch depuis le papier de Stallings (la table OCR avait des
+   erreurs → S-box générée par algo, plus sûr).
 
 ## Rappel workflow (relire au démarrage)
 Code source = markdown, l'utilisateur implémente. Claude édite UNIQUEMENT `.ai/`
 + ce qui est explicitement autorisé (à ce stade : `docs/` et `tests/`).
 Build/test via `wsl -d debian -- bash -lc '...'`. Codes retour → script fichier
-(piège `$?`). `make test` = 67/67 au dernier point.
+(piège `$?`). `make test` = 82/82 au dernier point.
 
 ## Notes libft (CodeWithCharles/42_libft_full)
 - Archive : `libftfull.a` ; headers dans `libft/include/` (`libft.h`, `ft_printf.h` non inclus par libft.h).

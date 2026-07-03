@@ -14,6 +14,9 @@ de hachage du projet, MD5 et SHA-256, et comment elles sont implémentées ici.
    fonctions Σ/σ. Inclut aussi **SHA-224** (bonus), même moteur tronqué.
 4. **[SHA-512 & SHA-384](sha512.md)** (bonus) — le moteur **64 bits** : mots de
    64 bits, bloc 128 o, 80 rondes. SHA-384 = SHA-512 tronqué.
+5. **[Whirlpool](whirlpool.md)** (bonus) — l'exception : **Miyaguchi–Preneel**
+   autour d'un chiffre type AES (matrice 8×8, GF(2⁸)). Même coquille
+   Merkle–Damgård à l'extérieur, tout l'intérieur différent.
 
 ## Vue d'ensemble : une fonction de hachage, c'est quoi ?
 
