@@ -75,7 +75,11 @@ static int	hash_file(t_ssl *ssl, t_source *src, uint8_t *digest)
 		return (1);
 	}
 	if (hash_fd(ssl->command->algo, &ctx, fd, NULL))
+	{
+		fd_printf(2, "%s: %s: %s: %s\n", ssl->prog, ssl->command->name,
+			src->value, strerror(errno));
 		return (close(fd), 1);
+	}
 	ssl->command->algo->final(&ctx, digest);
 	close(fd);
 	return (0);
