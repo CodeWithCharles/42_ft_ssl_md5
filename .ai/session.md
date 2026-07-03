@@ -1,6 +1,6 @@
 # ft_ssl — état de session
 
-_Dernière mise à jour : 2026-07-02 (Phase 3 verrouillée)_
+_Dernière mise à jour : 2026-07-03 (Bonus #1 — mode interactif STDIN verrouillé)_
 
 ## Avancement roadmap
 
@@ -76,7 +76,15 @@ QUE `.ai/`, plus ce que l'utilisateur autorise **explicitement et ponctuellement
 (ici : `docs/` et `tests/`). Une autorisation ≠ blanc-seing sur le reste.
 
 ## Bonus — Phase 6 (min. 5)
-Mandatory parfait ✅. Faits : **SHA-224, SHA-512, SHA-384** (3/5).
+Mandatory parfait ✅. Faits : **SHA-224, SHA-512, SHA-384, parsing STDIN interactif** (4/5).
+- **Bonus #1 — Parsing commandes depuis STDIN (openssl-like)** (`src/cli/interactive.c`) :
+  `argc < 2` → `interactive_mode` (au lieu de usage+exit 1). Boucle GNL(0) → tokenizer
+  **quote-aware** (`'...'`/`"..."`, collage `-s"a b"`, deux passes count+fill, pas de
+  realloc) → réutilise `find_command`/`parse_arguments`/`run_sources` (zéro duplication).
+  `exit`/`quit` + EOF sortent (exit 0). Cmd inconnue → `print_invalid_command` + continue.
+  Prompt `ft_ssl> ` sur **stderr** → stdout = output identique au one-shot. Reset `ssl`
+  par ligne. Réutilise libft : `ft_isspace`, `ft_free_split(char***)`. Seul proto exposé :
+  `interactive_mode`. Tests + valgrind clean (21 allocs/21 frees sur session mixte).
 - Moteur 64 bits (`src/hash/sha512.c`) : mots 64 bits, bloc 128 o, 80 rondes,
   `MD_LEN128`. Seul ajout `md_core` = `md_serialize64`. SHA-384 = SHA-512 tronqué
   6 mots (même fichier, réutilise transform/update).
@@ -85,14 +93,12 @@ Mandatory parfait ✅. Faits : **SHA-224, SHA-512, SHA-384** (3/5).
   Pour `len_bytes=16` (SHA-512) → octets `[112..119]` du champ longueur laissés
   en garbage. Fix : zéro-remplir jusqu'à `block_size`, `write_length` réécrit les
   8 octets de poids faible. Invisible pour md5/sha256/sha224 (`len_bytes=8`).
-- Tests : `make test` = 62/62 (vs md5sum/sha*sum, frontières incl. 111/112 pour
+- Tests : `make test` = 67/67 (vs md5sum/sha*sum, frontières incl. 111/112 pour
   SHA-512). Docs : `docs/sha512.md` (famille 64 bits + le bug de padding).
 
 ## Reste pour le MAX — ordre validé avec l'utilisateur
-1. **Parsing commandes depuis STDIN** façon openssl interactif ← PROCHAIN PAS.
-   Quick win : bonus requis pour le max, léger, orthogonal au hashing (couche CLI
-   uniquement, ne touche aucun algo). À reprendre ici la prochaine session.
-2. **Whirlpool** (boss final ; requis pour le max). Structure type AES :
+1. ~~Parsing commandes depuis STDIN façon openssl~~ ✅ FAIT (bonus #1 ci-dessus).
+2. **Whirlpool** (boss final ; requis pour le max) ← PROCHAIN PAS. Structure type AES :
    Miyaguchi–Preneel (pas la Merkle–Damgård classique), état/bloc 512 bits,
    S-box 256 entrées, multiplications GF(2^8), 10 rondes sur matrice 8×8,
    longueur sur 256 bits. **Ne colle PAS au `md_core` SHA** → prévoir son propre
@@ -103,7 +109,7 @@ Mandatory parfait ✅. Faits : **SHA-224, SHA-512, SHA-384** (3/5).
 Code source = markdown, l'utilisateur implémente. Claude édite UNIQUEMENT `.ai/`
 + ce qui est explicitement autorisé (à ce stade : `docs/` et `tests/`).
 Build/test via `wsl -d debian -- bash -lc '...'`. Codes retour → script fichier
-(piège `$?`). `make test` = 62/62 au dernier point.
+(piège `$?`). `make test` = 67/67 au dernier point.
 
 ## Notes libft (CodeWithCharles/42_libft_full)
 - Archive : `libftfull.a` ; headers dans `libft/include/` (`libft.h`, `ft_printf.h` non inclus par libft.h).

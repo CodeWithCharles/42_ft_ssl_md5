@@ -119,8 +119,28 @@ $BIN md5 .tmp_ok >/dev/null 2>&1;          eq "rc succes"            0 $?
 $BIN md5 /does/not/exist >/dev/null 2>&1;  eq "rc fichier manquant"  1 $?
 $BIN md5 .tmp_ok /nope >/dev/null 2>&1;    eq "rc mixte OK+erreur"   1 $?
 $BIN badcmd >/dev/null 2>&1;               eq "rc commande invalide" 1 $?
-$BIN >/dev/null 2>&1;                       eq "rc aucun argument"    1 $?
+$BIN </dev/null >/dev/null 2>&1;           eq "rc aucun arg (EOF)"   0 $?
 rm -f .tmp_ok
+
+# --------------------------- Mode interactif (bonus) ----------------------- #
+# Pas de commande -> lecture des commandes sur STDIN facon openssl.
+# stderr (prompt "ft_ssl> " + erreurs) masque : on compare le stdout au one-shot.
+printf "${B}== Mode interactif (bonus) ==${Z}\n"
+eq "interactif == one-shot" \
+	"$($BIN md5 -s abc)" \
+	"$(printf 'md5 -s abc\n' | $BIN 2>/dev/null)"
+eq "interactif quote-aware" \
+	"$($BIN md5 -s 'hello world')" \
+	"$(printf 'md5 -s \"hello world\"\n' | $BIN 2>/dev/null)"
+eq "interactif exit stoppe" \
+	"$($BIN md5 -s a)" \
+	"$(printf 'md5 -s a\nexit\nmd5 -s NEVER\n' | $BIN 2>/dev/null)"
+eq "interactif cmd inconnue skip" \
+	"$($BIN md5 -s ok)" \
+	"$(printf 'nope\nmd5 -s ok\n' | $BIN 2>/dev/null)"
+eq "interactif reset options entre lignes" \
+	"$($BIN sha256 -s a)" \
+	"$(printf 'md5 -q -s x\nsha256 -s a\n' | $BIN 2>/dev/null | tail -n1)"
 
 # --------------------------------- Bilan ----------------------------------- #
 printf "\n${B}Total :${Z} ${G}%d OK${Z}, ${R}%d FAIL${Z}\n" "$pass" "$fail"
